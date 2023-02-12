@@ -1,11 +1,12 @@
 const express = require("express");
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT ||3001;
 const path = require("path")
 const fs = require("fs")
 const util= require("util")
 const readFile= util.promisify(fs.readFile)
 const writeFile=util.promisify(fs.writeFile)
+const deleteFile=util.promisify(fs.deleteFile)
 const getnotes= ()=>{
     return readFile("db/db.json","utf-8").then(notes =>[].concat(JSON.parse(notes)))
 }
@@ -28,6 +29,13 @@ app.post("/api/notes", (req,res)=>{
     getnotes().then(notes=>{
         let newNote=[...notes,{title:req.body.title,text:req.body.text}]
         writeFile("db/db.json",JSON.stringify(newNote)).then(()=>res.json({msg:"ok"}))
+    })
+})
+app.delete("/api/notes", (req,res)=>{
+    res.sendFile(path.join(__dirname,"./public/notes.html"))
+    deletenotes().then(notes=>{
+        let deleteNote=[...notes,{title:req.body.title,text:req.body.text}]
+        deleteFile("db/db.json",JSON.stringify(deleteNote)).then(()=>res.json({msg:"ok"}))
     })
 })
 app.listen(PORT, ()=>console.log(`http://localhost:${PORT}`))
